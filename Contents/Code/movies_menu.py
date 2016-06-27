@@ -12,6 +12,7 @@ def menu():
     object_container.add(DirectoryObject(key=Callback(movies_menu, title='Trending', page='/api/movies/trending', page_index=1), title='Trending', summary='Browse movies currently being watched.'))
     object_container.add(DirectoryObject(key=Callback(movies_menu, title='Popular', page='/api/movies/popular', page_index=1), title='Popular', summary='Browse most popular movies.'))
     object_container.add(DirectoryObject(key=Callback(watchlist_menu, title='Watchlist'), title='Watchlist', summary='Browse your watchlist', thumb=R('favorites.png')))
+    object_container.add(DirectoryObject(key=Callback(tvshows_menu.menu), title='TV Shows', summary="Browse TV shows."))
 
     if Client.Product in DumbKeyboard.clients:
         DumbKeyboard(SharedCodeService.common.PREFIX + '/' + SUBPREFIX, object_container, search_menu, dktitle='Search', dkthumb=R('search.png'), title='Search')
@@ -50,7 +51,9 @@ def watchlist_menu(title):
     trakt_slugs = Dict['movies_watchlist'] if 'movies_watchlist' in Dict else []
 
     object_container = ObjectContainer(title2=title)
-
+    object_container.add(DirectoryObject(key=Callback(tvshows_menu.menu), title='TV Shows', summary="Browse TV shows."))
+    object_container.add(DirectoryObject(key=Callback(movies_menu.menu), title='Movies', summary='Browse movies.'))
+    
     json_url  = Prefs['SCRAPYARD_URL'] + '/api/movies/watchlist?'
     json_post = { 'movies_watchlist': JSON.StringFromObject(trakt_slugs) }
     json_data = JSON.ObjectFromURL(json_url, values=json_post, cacheTime=CACHE_1HOUR)
@@ -75,6 +78,9 @@ def watchlist_menu(title):
 @route(SharedCodeService.common.PREFIX + '/' + SUBPREFIX + '/search')
 def search_menu(title, query):
     object_container = ObjectContainer(title2=title)
+    object_container.add(DirectoryObject(key=Callback(movies_menu.menu), title='Movies', summary='Browse movies.'))
+    object_container.add(DirectoryObject(key=Callback(tvshows_menu.menu), title='TV Shows', summary="Browse TV shows."))
+    object_container.add(DirectoryObject(key=Callback(watchlist_menu, title='Watchlist'), title='Watchlist', summary='Browse your watchlist', thumb=R('favorites.png')))
 
     json_url  = Prefs['SCRAPYARD_URL'] + '/api/movies/search?query=' + String.Quote(query)
     json_data = JSON.ObjectFromURL(json_url, cacheTime=CACHE_1HOUR)
