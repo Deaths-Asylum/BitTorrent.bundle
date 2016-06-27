@@ -51,6 +51,7 @@ def watchlist_menu(title):
     trakt_slugs = Dict['movies_watchlist'] if 'movies_watchlist' in Dict else []
 
     object_container = ObjectContainer(title2=title)
+    
     object_container.add(DirectoryObject(key=Callback(tvshows_menu.menu), title='TV Shows', summary="Browse TV shows."))
     object_container.add(DirectoryObject(key=Callback(movies_menu.menu), title='Movies', summary='Browse movies.'))
     
@@ -78,6 +79,7 @@ def watchlist_menu(title):
 @route(SharedCodeService.common.PREFIX + '/' + SUBPREFIX + '/search')
 def search_menu(title, query):
     object_container = ObjectContainer(title2=title)
+    
     object_container.add(DirectoryObject(key=Callback(movies_menu.menu), title='Movies', summary='Browse movies.'))
     object_container.add(DirectoryObject(key=Callback(tvshows_menu.menu), title='TV Shows', summary="Browse TV shows."))
     object_container.add(DirectoryObject(key=Callback(watchlist_menu, title='Watchlist'), title='Watchlist', summary='Browse your watchlist', thumb=R('favorites.png')))
@@ -149,3 +151,17 @@ def remove_from_watchlist(title, movie_title, trakt_slug):
     object_container.header  = 'Remove from Watchlist'
     object_container.message = '{0} removed from Watchlist'.format(movie_title)
     return object_container
+
+################################################################################
+@route(SharedCodeService.common.PREFIX + '/' + SUBPREFIX + '/menu')
+def menu():
+    object_container = ObjectContainer(title2='TV Shows')
+    object_container.add(DirectoryObject(key=Callback(shows_menu, title='Trending', page='/api/shows/trending', page_index=1), title='Trending', summary='Browse TV shows currently being watched.'))
+    object_container.add(DirectoryObject(key=Callback(shows_menu, title='Popular', page='/api/shows/popular', page_index=1), title='Popular', summary='Browse most popular TV shows.'))
+    object_container.add(DirectoryObject(key=Callback(favorites_menu, title='Favorites'), title='Favorites', summary='Browse your favorite TV shows', thumb=R('favorites.png')))
+
+    if Client.Product in DumbKeyboard.clients:
+        DumbKeyboard(SharedCodeService.common.PREFIX + '/' + SUBPREFIX, object_container, search_menu, dktitle='Search', dkthumb=R('search.png'), title='Search')
+    else:
+        object_container.add(InputDirectoryObject(key=Callback(search_menu, title='Search'), title='Search', summary='Search TV shows', thumb=R('search.png'), prompt='Search for TV shows'))
+return object_container
